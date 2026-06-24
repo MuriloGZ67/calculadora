@@ -1,0 +1,22 @@
+name: Compilar C Automático
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar Emscripten
+        run: |
+          git clone https://github.com
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+      - name: Gerar WebAssembly do arquivo C
+        run: |
+          source emsdk/emsdk_env.sh
+          emcc main.c -o calculadora.js -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s EXPORTED_FUNCTIONS=['_calcularSoma','_calcularRaiz','_calcularQuadrado','_calcularDelta','_calcularX1','_calcularX2'] -s FORCE_FILESYSTEM=1
+      - name: Publicar Site Pronto
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: .
+          branch: gh-pages
